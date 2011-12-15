@@ -79,7 +79,8 @@ mainswitch:
                     ++pos;
                     continueline = false;
                 } else if (c >= '0' && c <= '9') { // number
-                    int next, p = pos, ival;
+                    int next, p = pos;
+                    float ival;
                     if (c == '0' && pos + 1 < endpos && ((next = cc[pos + 1]) == 'x' || next == 'X')) {
                         int d;
                         for (d = 8, pos += 2, c = cc[pos]; --d >= 0 
@@ -94,9 +95,9 @@ mainswitch:
                             ++pos;
                             c = pos < endpos ? cc[pos] : 0;
                         }
-                        ival = Integer.parseInt(new String(cc, p, pos - p)); 
+                        ival = Float.parseFloat(new String(cc, p, pos - p)); 
                     }
-                    addToken(tt, RC.TOK_NUMBER, p, pos - p, new Integer(ival));
+                    addToken(tt, RC.TOK_NUMBER, p, pos - p, new Float(ival));
                 } else if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
                     || c == '_' || c == '$') { // symbol or keyword
                     int p = pos;
@@ -545,7 +546,7 @@ mainloop:
                     break;
                 case 4: // n
                     Object o = to[1];
-                    Rv val = t == RC.TOK_NUMBER ? new Rv(((Integer) o).intValue()) 
+                    Rv val = t == RC.TOK_NUMBER ? new Rv(((Float) o).intValue()) 
                             : t == RC.TOK_STRING ? new Rv((String) o)
                             : Rv.symbol((String) o);
                     rpn.add(t).add(val); // this must be an operand
@@ -1374,6 +1375,11 @@ mainloop:
                 ret = new Rv(iret);
             }
             break;
+        case 212: // Math.abs(1)
+            if (arg0 != null && (arg0 = arg0.toNum()) != Rv._NaN) {
+                thiz.num = Math.abs(arg0.num);
+            }
+            break;
         case 204: // isNaN(1)
             ret = arg0 != null && arg0 == Rv._NaN ? Rv._true : Rv._false;
             break;
@@ -1486,6 +1492,7 @@ mainloop:
                 .putl("random", nat("Math.random"))
                 .putl("min", nat("Math.min"))
                 .putl("max", nat("Math.max"))
+                .putl("abs", nat("Math.abs"))
         ;
         // fill global Object
         Rv println;
@@ -1899,6 +1906,7 @@ mainloop:
         "209,println,1," +
         "210,Math.min,2," +
         "211,Math.max,2," +
+        "212,Math.abs,1," +
         "";
     
     static final Rhash htNativeIndex;
@@ -1911,6 +1919,7 @@ mainloop:
         Rhash ht = htKeywords = new Rhash(41);
         Pack pk = split(KEYWORDS, ",");
         Object[] pkar = pk.oArray;
+        
         for (int i = pk.oSize; --i >= 0; ht.put((String) pkar[i], 130 + i));
         
         Rhash ih = htOptrIndex = new Rhash(53);
@@ -1942,6 +1951,8 @@ mainloop:
 
         ht = htNativeIndex = new Rhash(61);
         Rhash ht2 = htNativeLength = new Rhash(61);
+        // OK so here we are going to parse something like:
+        // "203,Math.random,1,"
         pk = split(NATIVE_FUNC, ",");
         pkar = pk.oArray;
         for (int i = 0, n = pk.oSize; i < n; i += 3) {
