@@ -8,6 +8,11 @@ List list = null;
 Pack dispStack = new Pack(-1, 3);
 RocksInterpreter ri;
 boolean stopSkippingTests = true;
+String exceptionDuringExecution;
+boolean dontPrintOutput = true;
+String[] outputDigestLines = new String[5000];
+int outputDigestLinesUsedSoFar = 1;
+String digestOfTheDigest = "";
 
 
 
@@ -26,10 +31,10 @@ void setup() {
     testSuites = new FileUtils().nonRecursivelyListDirectoriesInside( new File(dataPath("") + "/javascript4P5Tests"));
   }
   catch (Exception e) {
-    println(e);
+    //println(e);
   }
-  println("//////////////////////////////");
-  println("Running all the "+ testSuites.size()+" testsuites:");
+  //println("//////////////////////////////");
+  //println("Running all the "+ testSuites.size()+" testsuites:");
 
   for (int k = 0; k < testSuites.size(); k++) {
 
@@ -43,7 +48,7 @@ void setup() {
       continue;
     }
 
-    println("test suite: " + testSuiteName);
+    //println("test suite: " + testSuiteName);
 
     Vector testCategories = null;
 
@@ -52,9 +57,9 @@ void setup() {
       testCategories = new FileUtils().nonRecursivelyListDirectoriesInside( new File(dataPath("") + "/javascript4P5Tests/"+testSuiteName));
     }
     catch (Exception e) {
-      println(e);
+      //println(e);
     }
-    println("   for all the "+ testCategories.size()+" categories:");
+    //println("   for all the "+ testCategories.size()+" categories:");
 
     for (int l = 0; l < testCategories.size(); l++) {
 
@@ -68,14 +73,14 @@ void setup() {
         continue;
       }
 
-      println("    > category: " + testCategoryName);
+      //println("    > category: " + testCategoryName);
 
       Vector finalTestFiles = null;
       try {
         finalTestFiles = new FileUtils().nonRecursivelyListFilesInside( new File(dataPath("") + "/javascript4P5Tests/"+testSuiteName + "/" + testCategoryName) );
       }
       catch (Exception e) {
-        println(e);
+        //println(e);
       }
 
       for (int m = 0; m < finalTestFiles.size(); m++) {
@@ -88,7 +93,7 @@ void setup() {
         if (testName.equals( "CVS") || testName.startsWith( ".") || testName.equals( "README") || testName.equals( "browser.js") || testName.equals(  "shell.js") || testName.equals(  "browser.js")  || testName.equals(  "template.js")  || testName.equals(  "jsref.js")) {
           continue;
         }
-        println("                      > " + testSuiteName + " - " + testCategoryName + " - " +testName);
+        //println("                      > " + testSuiteName + " - " + testCategoryName + " - " +testName);
 
         // ok here we build the final file to be ran
         // it comprises of the testuite shell.js and jsref.js files, plus the testcategory shell.js file, plus the test file
@@ -102,6 +107,9 @@ void setup() {
         */
 
         if (
+
+        // these tests crash the interpreter, skipping them.
+
            (testName.equals("11.3.1.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
         ||
            (testName.equals("11.3.2.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
@@ -123,8 +131,18 @@ void setup() {
            (testName.equals("regress-155081.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
         ||
            (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
+        
+        // these two tests are excluded because their output depends on the current date
+        // so it mangles the hashes I do to compare results between runs 
+        // So, I'm skipping these for the time being, a better approach would be to control
+        // the date returned by the date object in case we are doing a test run.
+        
+        ||
+           (testName.equals("15.9.4.2-1.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Date"))
+        ||
+           (testName.equals("date.js") && testSuiteName.equals("javascript4meTests") && testCategoryName.equals("all"))
         ) {
-          println("...skipping, moving on to next one.");
+          //println("...skipping, moving on to next one.");
           continue;
         }
 
@@ -143,13 +161,14 @@ void setup() {
 
         try {
           if (ri == null) {
-            ri = new RocksInterpreter(finalTest, null, 0, finalTest.length());
+            ri = new RocksInterpreter(finalTest, dontPrintOutput, null, 0, finalTest.length());
             ri.evalString = true;
             ri.DEBUG = false;
           } 
           else {
             ri.reset(finalTest, null, 0, finalTest.length());
           }
+          exceptionDuringExecution = "";
           ri.out.setLength(0);
           long start = System.currentTimeMillis();
           Node func = ri.astNode(null, '{', 0, 0);
@@ -162,11 +181,27 @@ void setup() {
           //println(">> Execution completed in " + time + " ms <<\n");
         }
         catch (Exception e) {
-          println(">> Exception: " + e);
+          //println(">> Exception: " + e);
+          exceptionDuringExecution = e.toString();
         }
+        String md5OfOutput = new MD5(ri.out).asHex();
+        String md5OfException = new MD5(exceptionDuringExecution).asHex();
+        
+        outputDigestLines[outputDigestLinesUsedSoFar] = testSuiteName + " - " + testCategoryName + " - " +testName + " md5OfOutput: "+ md5OfOutput + " md5OfException: " + md5OfException;
+        // concatenate all the digests into one single string. We are going to make an md5 of this to quickly check the whole of the digest
+        digestOfTheDigest = digestOfTheDigest + new MD5(outputDigestLines[outputDigestLinesUsedSoFar]).asHex();
+        
+        println(outputDigestLines[outputDigestLinesUsedSoFar]);
+    outputDigestLinesUsedSoFar++;
+
+
       }
     }
   }
+    outputDigestLines[0] = "total digest: " + new MD5(digestOfTheDigest).asHex();
+    println(outputDigestLines[0]);
+    saveStrings("./data/javascript4P5TestDigest.txt", outputDigestLines);
+
 }
 
 static final byte[] readData(InputStream is) throws Exception {

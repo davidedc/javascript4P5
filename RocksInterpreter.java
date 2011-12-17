@@ -18,10 +18,12 @@ public class RocksInterpreter {
     public Pack tt;
     public int pos = 0;
     public int endpos = 0;
+    public boolean dontPrintOutput;
     
     public StringBuffer out = new StringBuffer();
     
-    public RocksInterpreter(String src, Pack tokens, int pos, int len) {
+    public RocksInterpreter(String src, boolean dontPrintOutput, Pack tokens, int pos, int len) {
+        this.dontPrintOutput = dontPrintOutput;
         reset(src, tokens, pos, len);
     }
     
@@ -1408,10 +1410,10 @@ mainloop:
         case 208: // print(1);
         case 209: // println(1);
             String msg = argLen > 0 ? arg0.toStr().str : "";
-            System.out.print(msg);
+            if (!dontPrintOutput) System.out.print(msg);
             out.append(msg);
             if (funcId == 209) {
-                System.out.println();
+                if (!dontPrintOutput) System.out.println();
                 out.append("\n");
             }
             break;
