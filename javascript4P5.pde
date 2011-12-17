@@ -9,15 +9,14 @@ Pack dispStack = new Pack(-1, 3);
 RocksInterpreter ri;
 boolean stopSkippingTests = true;
 String exceptionDuringExecution;
-boolean dontPrintOutput = true;
+boolean dontPrintOutput = false;
 String[] outputDigestLines = new String[5000];
 int outputDigestLinesUsedSoFar = 1;
 String digestOfTheDigest = "";
+boolean showDigests = false;
 
+PrintWriter javascript4P5TestsOutput;
 
-
-protected void startApp() {
-}
 
 String[] lines;
 
@@ -25,6 +24,8 @@ void setup() {
 
   Vector sketchesInSketchesDirectory = null;
   Vector testSuites = null;
+
+  javascript4P5TestsOutput = createWriter("./data/javascript4P5TestsOutput.txt");
 
 
   try {
@@ -100,55 +101,56 @@ void setup() {
 
         /*
         if (
-           (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
-        ) {
-          stopSkippingTests = true;
-        }
-        */
+         (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
+         ) {
+         stopSkippingTests = true;
+         }
+         */
 
         if (
 
         // these tests crash the interpreter, skipping them.
 
-           (testName.equals("11.3.1.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
-        ||
-           (testName.equals("11.3.2.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
-        ||
-           (testName.equals("11.4.4.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
-        ||
-           (testName.equals("11.4.5.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
-        ||
-           (testName.equals("forin-002.js") && testSuiteName.equals("ecma_2") && testCategoryName.equals("Statements"))
-        ||
-           (testName.equals("array-001.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Array"))
-        ||
-           (testName.equals("regress-121658.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Exceptions"))
-        ||
-           (testName.equals("regress-111557.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
-        ||
-           (testName.equals("regress-155081-2.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
-        ||
-           (testName.equals("regress-155081.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
-        ||
-           (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
-        
+        (testName.equals("11.3.1.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
+          ||
+          (testName.equals("11.3.2.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
+          ||
+          (testName.equals("11.4.4.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
+          ||
+          (testName.equals("11.4.5.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Expressions"))
+          ||
+          (testName.equals("forin-002.js") && testSuiteName.equals("ecma_2") && testCategoryName.equals("Statements"))
+          ||
+          (testName.equals("array-001.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Array"))
+          ||
+          (testName.equals("regress-121658.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Exceptions"))
+          ||
+          (testName.equals("regress-111557.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
+          ||
+          (testName.equals("regress-155081-2.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
+          ||
+          (testName.equals("regress-155081.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
+          ||
+          (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
+
         // these two tests are excluded because their output depends on the current date
         // so it mangles the hashes I do to compare results between runs 
         // So, I'm skipping these for the time being, a better approach would be to control
         // the date returned by the date object in case we are doing a test run.
-        
+
         ||
-           (testName.equals("15.9.4.2-1.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Date"))
-        ||
-           (testName.equals("date.js") && testSuiteName.equals("javascript4meTests") && testCategoryName.equals("all"))
-        ) {
+          (testName.equals("15.9.4.2-1.js") && testSuiteName.equals("ecma") && testCategoryName.equals("Date"))
+          ||
+          (testName.equals("date.js") && testSuiteName.equals("javascript4meTests") && testCategoryName.equals("all"))
+          ) {
           //println("...skipping, moving on to next one.");
           continue;
         }
 
 
         if (!stopSkippingTests) continue;
-        
+
+        println (testSuiteName + " - " + testCategoryName + " - " +testName );
         String testSuiteShellJS = new FileUtils().loadFileAsString(new File(dataPath("") + "/javascript4P5Tests/"+testSuiteName + "/shell.js"));
         String testSuiteJsrefJS = new FileUtils().loadFileAsString(new File(dataPath("") + "/javascript4P5Tests/"+testSuiteName + "/jsref.js"));
         String testCategoryShellJS = new FileUtils().loadFileAsString( new File(dataPath("") + "/javascript4P5Tests/"+testSuiteName + "/" + testCategoryName + "/shell.js") );
@@ -184,23 +186,29 @@ void setup() {
           //println(">> Exception: " + e);
           exceptionDuringExecution = e.toString();
         }
+        
+
         String md5OfOutput = new MD5(ri.out).asHex();
         String md5OfException = new MD5(exceptionDuringExecution).asHex();
-        
+
         outputDigestLines[outputDigestLinesUsedSoFar] = testSuiteName + " - " + testCategoryName + " - " +testName + " md5OfOutput: "+ md5OfOutput + " md5OfException: " + md5OfException;
         // concatenate all the digests into one single string. We are going to make an md5 of this to quickly check the whole of the digest
         digestOfTheDigest = digestOfTheDigest + new MD5(outputDigestLines[outputDigestLinesUsedSoFar]).asHex();
-        
-        println(outputDigestLines[outputDigestLinesUsedSoFar]);
-    outputDigestLinesUsedSoFar++;
 
+          javascript4P5TestsOutput.println(testSuiteName + " - " + testCategoryName + " - " +testName + " md5OfOutput: "+ md5OfOutput + " md5OfException: " + md5OfException);
+          javascript4P5TestsOutput.println(ri.out);
 
+        if (showDigests) println(outputDigestLines[outputDigestLinesUsedSoFar]);
+        outputDigestLinesUsedSoFar++;
       }
     }
   }
-    outputDigestLines[0] = "total digest: " + new MD5(digestOfTheDigest).asHex();
-    println(outputDigestLines[0]);
-    saveStrings("./data/javascript4P5TestDigest.txt", outputDigestLines);
+  outputDigestLines[0] = "total digest: " + new MD5(digestOfTheDigest).asHex();
+  if (showDigests) println(outputDigestLines[0]);
+  saveStrings("./data/javascript4P5TestDigest.txt", outputDigestLines);
+
+  javascript4P5TestsOutput.flush(); // Write the remaining data
+  javascript4P5TestsOutput.close(); // Finish the file
 
 }
 
