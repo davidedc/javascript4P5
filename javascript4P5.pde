@@ -39,7 +39,7 @@ void setup() {
     String[] allDirectoriesInPath = testSuites.get(k).toString().split("\\/");
     String testSuiteName = allDirectoriesInPath[allDirectoriesInPath.length-1];
 
-    if (testSuiteName.equals( "CVS") || testSuiteName.equals( ".DS_Store") ) {
+    if (testSuiteName.equals( "CVS") || testSuiteName.startsWith( ".") ) {
       continue;
     }
 
@@ -64,7 +64,7 @@ void setup() {
       String[] allSubDirectoriesInPath = testCategories.get(l).toString().split("\\/");
       String testCategoryName = allSubDirectoriesInPath[allSubDirectoriesInPath.length-1];
 
-      if (testCategoryName.equals( "CVS") || testCategoryName.equals( ".DS_Store") ) {
+      if (testCategoryName.equals( "CVS") || testCategoryName.startsWith( ".") ) {
         continue;
       }
 
@@ -85,7 +85,7 @@ void setup() {
         // manipulation.
         String[] allTestsInPath = finalTestFiles.get(m).toString().split("\\/");
         String testName = allTestsInPath[allTestsInPath.length-1];
-        if (testName.equals( "CVS") || testName.equals( ".DS_Store") || testName.equals( "README") || testName.equals( "browser.js") || testName.equals(  "shell.js") || testName.equals(  "browser.js")  || testName.equals(  "template.js")  || testName.equals(  "jsref.js")) {
+        if (testName.equals( "CVS") || testName.startsWith( ".") || testName.equals( "README") || testName.equals( "browser.js") || testName.equals(  "shell.js") || testName.equals(  "browser.js")  || testName.equals(  "template.js")  || testName.equals(  "jsref.js")) {
           continue;
         }
         println("                      > " + testSuiteName + " - " + testCategoryName + " - " +testName);
