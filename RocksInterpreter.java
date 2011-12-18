@@ -529,7 +529,7 @@ mainloop:
                 int top = op.iSize > 0 ? op.iArray[op.iSize - 1] : RC.TOK_EMPTY;
                 int offset = top >>> 16;
                 top &= 0xffff;
-                int row = opidx.get(t, -1), col = opidx.get(top, -1);
+                int row = (int)opidx.get(t, -1), col = (int)opidx.get(top, -1);
                 if (row == -1 || col == -1) {
                     throw ex(t, to, "stack top: " + RC.tokenName(top, null));
                 }
@@ -625,7 +625,7 @@ mainloop:
             int t = tt[i];
             int offset = t >> 16;
             t &= 0xffff;
-            switch (htOptrType.get(t, -1)) {
+            switch ((int)htOptrType.get(t, -1)) {
             case 1: // unary op
                 Rv o = (Rv) opnd.oArray[opnd.oSize - 1];
                 opnd.oArray[opnd.oSize - 1] = ((Rv) to[i]).unary(callObj, t, o);
@@ -707,7 +707,7 @@ mainloop:
                     break;
                 case RC.TOK_INIT:
                 case RC.TOK_INVOKE:
-                    num = ((Rv) opnd.oArray[opnd.oSize - 1]).num;
+                    num = (int)((Rv) opnd.oArray[opnd.oSize - 1]).num;
                     int idx = opnd.oSize - num - 2;
                     Rv fun = (Rv) opnd.oArray[idx];
                     Rv funRef, funObj;
@@ -742,9 +742,9 @@ mainloop:
                 case RC.TOK_COL:
                     num = 3; // fall through
                 case RC.TOK_JSONARR:
-                    if (num == 0) num = ((Rv) opnd.oArray[opnd.oSize - 1]).num + 1; // fall through
+                    if (num == 0) num = (int)((Rv) opnd.oArray[opnd.oSize - 1]).num + 1; // fall through
                 case RC.TOK_LBR: // json object
-                    if (num == 0) num = ((Rv) opnd.oArray[opnd.oSize - 1]).num * 2 + 1;
+                    if (num == 0) num = (int)((Rv) opnd.oArray[opnd.oSize - 1]).num * 2 + 1;
                     rv = Rv.polynary(callObj, t, opnd, num);
                     opnd.oSize = opnd.oSize - num + 1;
                     opnd.oArray[opnd.oSize - 1] = rv;
@@ -1021,14 +1021,14 @@ mainloop:
         Rv args = callObj.get("arguments");
         Rv thiz = callObj.get("this");
         Rhash prop = thiz.prop;
-        int argLen = args.num;
+        int argLen = (int)args.num;
         Rv arg0, arg1, ret;
         arg0 = argLen > 0 ? (Rv) args.get("0") : null;
         arg1 = argLen > 1 ? (Rv) args.get("1") : null;
         ret = Rv._undefined;
         
         int funcId;
-        switch (funcId = idEnt.num) {
+        switch (funcId = (int)idEnt.num) {
         case 101: // Object(1)
             ret = isNew ? thiz : new Rv(Rv.OBJECT, Rv._Object);
             if (arg0 != null) {
@@ -1136,7 +1136,7 @@ mainloop:
                     argStart = 1;
                     argsArr = args;
                 } else {
-                    argNum = arg1.num;
+                    argNum = (int)arg1.num;
                     argStart = 0;
                     argsArr = arg1;
                 }
@@ -1155,7 +1155,7 @@ mainloop:
             ret = thiz.type == Rv.STRING_OBJECT ? thiz : Rv._undefined;
             break;
         case 142: // String.charAt(1)
-            int pos = (arg0 = arg0.toNum()) != Rv._NaN ? arg0.num : -1;
+            int pos = (arg0 = arg0.toNum()) != Rv._NaN ? (int)arg0.num : -1;
             ret = pos < 0 || pos >= thiz.str.length() ? Rv._empty
                     : new Rv(String.valueOf(thiz.str.charAt(pos)));
             break;
@@ -1163,7 +1163,7 @@ mainloop:
             ret = new Rv(-1);
             if (arg0 != null) {
                 String s = arg0.toStr().str;
-                int idx = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? arg1.num : 0;
+                int idx = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? (int)arg1.num : 0;
                 ret = new Rv(thiz.str.indexOf(s, idx));
             }
             break;
@@ -1173,7 +1173,7 @@ mainloop:
                 String s = arg0.toStr().str;
                 String src = thiz.toStr().str;
                 int l = s.length(), srcl = src.length();
-                int idx = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? arg1.num : srcl;
+                int idx = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? (int)arg1.num : srcl;
                 if (idx >= 0) {
                     if (idx >= srcl - l) idx = srcl - l;
                     for (int i = idx + 1; --i >= 0;) {
@@ -1188,8 +1188,8 @@ mainloop:
         case 145: // String.substring(2)
             if (arg0 != null) {
                 thiz = thiz.toStr();
-                int i1 = (arg0 = arg0.toNum()) != Rv._NaN ? arg0.num : 0;
-                int i2 = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? arg1.num : Integer.MAX_VALUE;
+                int i1 = (arg0 = arg0.toNum()) != Rv._NaN ? (int)arg0.num : 0;
+                int i2 = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? (int)arg1.num : Integer.MAX_VALUE;
                 int strlen;
                 if (i2 > (strlen = thiz.str.length())) i2 = strlen;
                 ret = new Rv(thiz.str.substring(i1, i2));
@@ -1198,7 +1198,7 @@ mainloop:
         case 146: // String.split(2)
             if (arg0 != null) {
                 thiz = thiz.toStr();
-                int limit = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? arg1.num : -1;
+                int limit = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? (int)arg1.num : -1;
                 String delim;
                 Pack p = split(thiz.str, delim = arg0.toStr().str);
                 if (limit >= 1) {
@@ -1216,7 +1216,7 @@ mainloop:
             }
             break;
         case 147: // String.charCodeAt(1)
-            pos = (arg0 = arg0.toNum()) != Rv._NaN ? arg0.num : -1;
+            pos = (arg0 = arg0.toNum()) != Rv._NaN ? (int)arg0.num : -1;
             ret = pos < 0 || pos >= thiz.str.length() ? Rv._NaN
                     : new Rv(thiz.str.charAt(pos));
             break;
@@ -1240,31 +1240,31 @@ mainloop:
             for (int i = 0; i < argLen; i++) {
                 Rv obj = args.get(Integer.toString(i));
                 if (obj.type == Rv.ARRAY) {
-                    for (int j = 0, n = obj.num, b = ret.num; j < n; j++) {
+                    for (int j = 0, n = (int)obj.num, b = (int)ret.num; j < n; j++) {
                         ret.putl(b + j, obj.get(Integer.toString(j)));
                     }
                 } else {
-                    ret.putl(ret.num, obj);
+                    ret.putl((int)ret.num, obj);
                 }
             }
             break;
         case 152: // Array.join(1)
             String sep = arg0 != null ? arg0.toStr().str : ",";
             buf = new StringBuffer();
-            for (int i = 0, n = thiz.num; i < n; i++) {
+            for (int i = 0, n = (int)thiz.num; i < n; i++) {
                 if (i > 0) buf.append(sep);
                 buf.append(prop.get(Integer.toString(i)).toStr().str);
             }
             ret = new Rv(buf.toString());
             break;
         case 153: // Array.push(1)
-            for (int i = 0, b = thiz.num; i < argLen; i++) {
+            for (int i = 0, b = (int)thiz.num; i < argLen; i++) {
                 thiz.putl(b + i, args.get(Integer.toString(i)));
             }
-            ret = new Rv(thiz.num);
+            ret = new Rv((int)thiz.num);
             break;
         case 154: // Array.pop(0)
-            ret = thiz.shift(thiz.num - 1);
+            ret = thiz.shift((int)thiz.num - 1);
             break;
         case 155: // Array.shift(0)
             ret = thiz.shift(0);
@@ -1276,7 +1276,7 @@ mainloop:
                 Rv val = args.prop.get(idx); 
                 if (val != null) ht.put(idx, val);
             }
-            for (int i = 0, n = thiz.num; i < n; i++) {
+            for (int i = 0, n = (int)thiz.num; i < n; i++) {
                 Rv val = prop.get(Integer.toString(i)); 
                 if (val != null) ht.put(Integer.toString(i + argLen), val);
             }
@@ -1285,11 +1285,13 @@ mainloop:
             break;
         case 157: // Array.slice(2)
             if (arg0 != null) {
-                int i1 = (arg0 = arg0.toNum()) != Rv._NaN ? arg0.num : 0;
-                int i2 = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? arg1.num : thiz.num;
+                int i1 = (arg0 = arg0.toNum()) != Rv._NaN ? (int)arg0.num : 0;
+                int i2 = arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN ? (int)arg1.num : (int)thiz.num;
                 ret = new Rv(Rv.ARRAY, Rv._Array);
                 ht = ret.prop;
-                int i = 0, n = ret.num = i2 - i1;
+                int i = 0;
+                int n = i2 - i1;
+                ret.num = n;
                 for (; i < n; i++) {
                     Rv val = prop.get(Integer.toString(i + i1)); 
                     if (val != null) ht.put(Integer.toString(i), val);
@@ -1299,7 +1301,7 @@ mainloop:
         case 158: // Array.sort(1)
             Rv comp = arg0 != null && arg0.type >= Rv.FUNCTION ? arg0 : null;
             int num;
-            Pack tmp = new Pack(-1, num = thiz.num);
+            Pack tmp = new Pack(-1, num = (int)thiz.num);
             for (int i = 0; i < num; tmp.add(prop.get(Integer.toString(i++))));
             Object[] arr = tmp.oArray;
             for (int i = 0, n = num - 1; i < n; i++) {
@@ -1337,14 +1339,14 @@ mainloop:
             break;
         case 159: // Array.reverse(0)
             ht = new Rhash(11);
-            for (int i = 0, j = thiz.num; --j >= 0; i++) {
+            for (int i = 0, j = (int)thiz.num; --j >= 0; i++) {
                 Rv val = prop.get(Integer.toString(j)); 
                 if (val != null) ht.put(Integer.toString(i), val);
             }
             thiz.prop = ht;
             break;
         case 160: // Date.getTime(0)
-            ret = new Rv(thiz.num);
+            ret = new Rv((int)thiz.num);
             break;
         case 161: // Date.setTime(1)
             if (arg0 != null && (arg0 = arg0.toNum()) != Rv._NaN) {
@@ -1356,13 +1358,13 @@ mainloop:
             break;
         case 203: // Math.random(1)
             if (arg0 != null && arg0.toNum() != Rv._NaN) {
-                int low = arg0.num;
-                int high = arg1 != null && arg1.toNum() != Rv._NaN ? arg1.num : low - 1;
+                double low = arg0.num;
+                double high = arg1 != null && arg1.toNum() != Rv._NaN ? arg1.num : low - 1;
                 if (high <= low) {
                     high = low;
                     low = 0;
                 }
-                int rand = (random.nextInt() & 0x7FFFFFFF) % (high - low);
+                double rand = (random.nextInt() & 0x7FFFFFFF) % (high - low);
                 ret = new Rv(low + rand);
             }
             break;
@@ -1377,7 +1379,7 @@ mainloop:
                         ret = val;
                         break;
                     }
-                    if (isMax && iret < val.num || !isMax && iret > val.num) iret = val.num;
+                    if (isMax && iret < val.num || !isMax && iret > (int)val.num) iret = (int)val.num;
                 }
                 ret = new Rv(iret);
             }
@@ -1392,7 +1394,7 @@ mainloop:
               System.out.println("Math.pow with args: " + arg0.num + " " + arg1.num);
               if (arg0 != null && (arg0 = arg0.toNum()) != Rv._NaN && arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN) {
                   ret = new Rv((int)Math.pow(arg0.num, arg1.num));
-                  System.out.println("Calculated: " + thiz.num);
+                  System.out.println("Calculated: " + ret.num);
               }
             }
             break;
@@ -1400,7 +1402,7 @@ mainloop:
             ret = arg0 != null && arg0 == Rv._NaN ? Rv._true : Rv._false;
             break;
         case 205: // parseInt(1)
-            int radix = arg1 != null && arg1.toNum() != Rv._NaN ? arg1.num : 10;
+            int radix = arg1 != null && arg1.toNum() != Rv._NaN ? (int)arg1.num : 10;
             String sNum = arg0 != null ? arg0.toStr().str : null;
             try {
                 ret = new Rv(Integer.parseInt(sNum, radix));
@@ -1985,7 +1987,7 @@ mainloop:
     
     static final int keywordIndex(String s) {
         Rv entry;
-        return (entry = htKeywords.getEntry(0, s)) == null ? -1 : entry.num;
+        return (entry = htKeywords.getEntry(0, s)) == null ? -1 : (int)entry.num;
     }
     
     static final Pack split(String src, String delim) {
@@ -2017,7 +2019,7 @@ mainloop:
     }
     
     final static Rv nat(String name) {
-        return new Rv(true, name, htNativeLength.getEntry(0, name).num);
+        return new Rv(true, name, (int)htNativeLength.getEntry(0, name).num);
     }
     
 }

@@ -37,7 +37,7 @@ public class Rv {
     // prev                                                 o     
       
     /** For function & native it's number of formal arguments */
-    public int num;
+    public double num;
     /** For native it's the name of native function */
     public String str;
     /** For non-native function only */
@@ -65,6 +65,10 @@ public class Rv {
         this.num = n;
     }
     
+    public Rv(double n) {
+        this.type = Rv.NUMBER;
+        this.num = n;
+    }
     /**
      * To create a string or symbol
      * @param s
@@ -152,7 +156,7 @@ public class Rv {
     public final Pack keyArray() {
         if (type == ARRAY || type == ARGUMENTS) {
             Pack p;
-            int len = this.num;
+            int len = (int)this.num;
             if ((p = (Pack) this.obj) == null || p.oSize != len) {
                 this.obj = p = new Pack(-1, len);
                 for (int i = 0; i < len; p.add(Integer.toString(i++)));
@@ -204,7 +208,7 @@ public class Rv {
                 || type >= Rv.OBJECT && type < Rv.CTOR_MASK && "constructor".equals(p)) { 
             return this.ctorOrProt != null ? this.ctorOrProt : Rv._undefined;
         } else if ("length".equals(p)) { // array/arguments/function/native
-            int num = type >= Rv.ARRAY ? this.num 
+            int num = type >= Rv.ARRAY ? (int)this.num 
                     : type == Rv.STRING || type == Rv.STRING_OBJECT ? this.str.length() 
                     : -1;
             if (num >= 0) return new Rv(num);
@@ -242,9 +246,9 @@ public class Rv {
         } else if (type >= Rv.ARRAY && "length".equals(p)) {
             if (type == Rv.ARRAY && (val = val.toNum()) != Rv._NaN) {
                 int newNum;
-                if ((newNum = val.num) < o.num) { // trim array
+                if ((newNum = (int)val.num) < (int)o.num) { // trim array
                     Rhash prop = o.prop;
-                    for (int i = o.num; --i >= newNum; prop.remove(0, Integer.toString(i)));
+                    for (int i = (int)o.num; --i >= newNum; prop.remove(0, Integer.toString(i)));
                 }
                 o.num = newNum;
             } // else do nothing (for Arguments, Function, Native)
@@ -286,10 +290,13 @@ public class Rv {
     final Rv shift(int idx) {
         Rhash prop = this.prop;
         Rv ret = prop.get(Integer.toString(idx));
-        for (int i = idx, n = --this.num; i < n; i++) {
+        int thisNum = (int)this.num;
+        for (int i = idx, n = --thisNum; i < n; i++) {
+            this.num = thisNum;
             Rv val = prop.get(Integer.toString(i + 1));
             prop.put(Integer.toString(i), val != null ? val : Rv._undefined);
         }
+        this.num = thisNum;
         return ret != null ? ret : Rv._undefined;
     }
     
@@ -320,7 +327,8 @@ public class Rv {
             break;
         case Rv.NUMBER:
         case Rv.NUMBER_OBJECT:
-            ret = this == Rv._NaN ? "NaN" : Integer.toString(this.num);
+            // using the DecimalFormat class allows to omit the .0 so integers are shown more simply.
+            ret = this == Rv._NaN ? "NaN" : new java.text.DecimalFormat("#.#").format(this.num);
             break;
         default:
             ret = t >= Rv.OBJECT ? "object"
@@ -404,6 +412,7 @@ public class Rv {
                     (t2 == Rv.NUMBER || t2 == Rv.NUMBER_OBJECT)) {
                 this.type = Rv.NUMBER;
                 this.num = r1.num + r2.num;
+                System.out.println("adding " +  r1.num + " and " +  r2.num);
             } else {
                 this.type = Rv.STRING;
                 this.str = r1.toStr().str + r2.toStr().str;
@@ -452,7 +461,8 @@ public class Rv {
         } else {
             // **, *, /, %, -, <<, >>, >>>, &, ^, |
             if ((r1 = r1.toNum()) == Rv._NaN || (r2 = r2.toNum()) == Rv._NaN) return Rv._NaN;
-            int n1 = r1.num, n2 = r2.num;
+            //int n1 = (int)r1.num, n2 = (int)r2.num;
+            double n1 = r1.num, n2 = r2.num;
             switch (op) {
             case RC.TOK_MIN:
                 n1 -= n2;
@@ -468,27 +478,30 @@ public class Rv {
                 if (n2 == 0) return Rv._NaN;
                 n1 %= n2;
                 break;
+            // the power operator using two asterisks doesn't even seem
+            // documented in javascript. I don't know if I'm doing the
+            // right thing here.
             case RC.TOK_POW:
                 int n, i;
-                for (n = n1, n1 = 1, i = n2; --i >= 0; n1 *= n);
+                for (n = (int)n1, n1 = 1, i = (int)n2; --i >= 0; n1 *= n);
                 break;
             case RC.TOK_LSH:
-                n1 <<= n2;
+                n1 = ((int)n1 << (int)n2);
                 break;
             case RC.TOK_RSH:
-                n1 >>= n2;
+                n1 = ((int)n1 >> (int)n2);
                 break;
             case RC.TOK_RSZ:
-                n1 >>>= n2;
+                n1 = ((int)n1 >>> (int)n2);
                 break;
             case RC.TOK_BAN:
-                n1 &= n2;
+                n1 = ((int)n1 & (int)n2);
                 break;
             case RC.TOK_BXO:
-                n1 ^= n2;
+                n1 = ((int)n1 ^ (int)n2);
                 break;
             case RC.TOK_BOR:
-                n1 |= n2;
+                n1 = ((int)n1 | (int)n2);
                 break;
             }
             this.num = n1;
@@ -517,7 +530,7 @@ public class Rv {
             if (rv == Rv._undefined) return Rv._NaN;
             Rv prop;
             if ((prop = rv.get()) == Rv._undefined || (prop = prop.toNum()) == Rv._NaN) return Rv._NaN;
-            int n = prop.num;
+            int n = (int)prop.num;
             if (op == RC.TOK_INC || op == RC.TOK_POSTINC) {
                 prop.num++;
             } else {
@@ -533,7 +546,7 @@ public class Rv {
             return rv.evalVal(callObj).asBool() ? Rv._false : Rv._true;
         case RC.TOK_BNO:
             if ((rv = rv.evalVal(callObj).toNum()) == Rv._NaN) return Rv._NaN;
-            this.num = ~rv.num;
+            this.num = ~((int)(rv.num));
             break;
         case RC.TOK_TYPEOF:
             this.type = Rv.STRING;
@@ -577,7 +590,7 @@ public class Rv {
             Rv obj = new Rv(Rv.OBJECT, Rv._Object);
             for (int i = idx, n = opnd.oSize - 1; i < n; i += 2) {
                 Rv k = (Rv) opnd.getObject(i);
-                String ks = k.type == Rv.NUMBER ? Integer.toString(k.num) : k.str;
+                String ks = k.type == Rv.NUMBER ? Integer.toString((int)k.num) : k.str;
                 Rv v = ((Rv) opnd.getObject(i + 1)).evalVal(callObj);
                 obj.putl(ks, v);
             }
@@ -713,7 +726,7 @@ public class Rv {
             if (s.length() == 0) s = "array";
             buf.append(s);
             ht = this.prop;
-            int len = this.num;
+            int len = (int)this.num;
             buf.append('(').append(len).append(")[");
             for (int i = 0; i < len; i++) {
                 if (i > 0) buf.append(", ");

@@ -28,7 +28,7 @@ public class Rhash {
         return this;
     }
     
-    public final int get(int key, int defValue) {
+    public final double get(int key, int defValue) {
         Rv entry = getEntry(key, null);
         return entry != null ? entry.num : defValue;
     }

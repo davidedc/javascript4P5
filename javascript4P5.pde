@@ -111,6 +111,13 @@ void setup() {
           */
           
 
+        if (
+          (!testSuiteName.equals("otherJavascript4P5Tests"))
+        )
+          {
+            continue;
+          }
+
         /*
         if (
          (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
