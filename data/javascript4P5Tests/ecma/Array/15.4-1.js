@@ -57,6 +57,9 @@ var TITLE   = "Array Objects";
 
 writeHeaderToLog( SECTION + " "+ TITLE);
 
+var bigggg = Math.pow(2,31)+1;
+print("bigggg:" + bigggg)
+
 new TestCase(SECTION,
              "var myarr = [100]; myarr[0]=9; myarr[0];",
              9,
