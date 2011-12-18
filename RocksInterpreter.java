@@ -11,7 +11,7 @@ public class RocksInterpreter {
     
     public boolean DEBUG = false;
     /** whether to evaluate in-string expressions in language level */
-    public boolean evalString = false;
+    public boolean evalString = true;
     
     public String src;
     // array of tokens. a token = (type, { [pos, len], value} )
@@ -1382,6 +1382,13 @@ mainloop:
                 thiz.num = Math.abs(arg0.num);
             }
             break;
+        case 213: // Math.pow(2)
+            if (argLen > 0) {
+              if (arg0 != null && (arg0 = arg0.toNum()) != Rv._NaN && arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN) {
+                  thiz.num = (int)Math.pow(arg0.num, arg1.num);
+              }
+            }
+            break;
         case 204: // isNaN(1)
             ret = arg0 != null && arg0 == Rv._NaN ? Rv._true : Rv._false;
             break;
@@ -1495,6 +1502,7 @@ mainloop:
                 .putl("min", nat("Math.min"))
                 .putl("max", nat("Math.max"))
                 .putl("abs", nat("Math.abs"))
+                .putl("pow", nat("Math.pow"))
         ;
         // fill global Object
         Rv println;
@@ -1909,6 +1917,7 @@ mainloop:
         "210,Math.min,2," +
         "211,Math.max,2," +
         "212,Math.abs,1," +
+        "213,Math.pow,2," +
         "";
     
     static final Rhash htNativeIndex;

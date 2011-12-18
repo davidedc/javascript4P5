@@ -11,8 +11,8 @@ TITLE  = "";
  * constant strings
  */
 var	GLOBAL = "[object global]";
-var PASSED = " PASSED!"
-var FAILED = " FAILED! expected: ";
+var PASSED = " PASSED "
+var FAILED = " FAILED expected ";
 var	DEBUG =	false;
 
 TZ_DIFF = -8;
@@ -31,24 +31,7 @@ var B_ = ""
 var H2 = "";
 var H2_ = "";
 var HR = "";
-var DEBUG = false;
 
-var PASSED = " PASSED!"
-var FAILED = " FAILED! expected: ";
-
-function test() {
-    for ( tc=0; tc < testcases.length; tc++ ) {
-        testcases[tc].passed = writeTestCaseResult(
-                            testcases[tc].expect,
-                            testcases[tc].actual,
-                            testcases[tc].description +" = "+
-                            testcases[tc].actual );
-
-        testcases[tc].reason += ( testcases[tc].passed ) ? "" : "wrong value ";
-    }
-    stopTest();
-    return ( testcases );
-}
 /* wrapper for test cas constructor that doesn't require the SECTION
  * argument.
  */
@@ -66,6 +49,7 @@ function TestCase( n, d, e, a ) {
     this.reason      = "";
     this.bugnumber   = BUGNUMBER;
 
+    testcases[tc++] = this;
     this.passed = getTestCaseResult( this.expect, this.actual );
     if ( DEBUG ) {
         print( "added " + this.description );
@@ -155,11 +139,20 @@ function getTestCaseResult( expect, actual ) {
             passed = false;
         }
 
+        
+        if (passed) {
+           print( "PASSED\n");
+        }
+        else{
+           print( "FAILED: expected: " + expect + " actual: " + actual + "\n");
+        }
+        
+
         return passed;
 }
 function writeTestCaseResult( expect, actual, string ) {
         var passed = getTestCaseResult( expect, actual );
-        writeFormattedResult( expect, actual, string, passed );
+        //writeFormattedResult( expect, actual, string, passed );
         return passed;
 }
 function writeFormattedResult( expect, actual, string, passed ) {
@@ -179,7 +172,7 @@ function writeFormattedResult( expect, actual, string, passed ) {
 }
 
 function writeHeaderToLog( string ) {
-    print( H2 + string + H2_ );
+    print( H2 + string + H2_ +"\n");
 }
 function stopTest()
 {
@@ -188,11 +181,18 @@ function stopTest()
     var beginTag = "<#TEST CASE ";
     var endTag   = ">";
 
+    print("TESTS COMPLETE: ");
     print(sizeTag);
     print(testcases.length);
+    print("\n");
     for (tc = 0; tc < testcases.length; tc++)
     {
-        print(beginTag + 'PASSED'      + endTag);
+		 if ( testcases[tc].passed ) {
+			print(beginTag + 'PASSED'      + endTag);
+		 }
+		 else {
+			print(beginTag + 'FAILED'      + endTag);
+		 }
         print(testcases[tc].passed);
         print(beginTag + 'NAME'        + endTag);
         print(testcases[tc].name);
@@ -206,6 +206,7 @@ function stopTest()
         print(( testcases[tc].passed ) ? "" : "wrong value ");
         print(beginTag + 'BUGNUMBER'   + endTag);
         print( BUGNUMBER );
+        print("\n");
     }
     print(doneTag);
     print( HR );

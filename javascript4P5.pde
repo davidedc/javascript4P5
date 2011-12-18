@@ -195,8 +195,15 @@ void setup() {
         // concatenate all the digests into one single string. We are going to make an md5 of this to quickly check the whole of the digest
         digestOfTheDigest = digestOfTheDigest + new MD5(outputDigestLines[outputDigestLinesUsedSoFar]).asHex();
 
+          javascript4P5TestsOutput.println("////// New test:");
           javascript4P5TestsOutput.println(testSuiteName + " - " + testCategoryName + " - " +testName + " md5OfOutput: "+ md5OfOutput + " md5OfException: " + md5OfException);
+          javascript4P5TestsOutput.println("////// Exception:");
+          javascript4P5TestsOutput.println(exceptionDuringExecution);
+          javascript4P5TestsOutput.println("////// Output:");
           javascript4P5TestsOutput.println(ri.out);
+          if (ri.out.indexOf("TESTS COMPLETE") == -1) {
+             javascript4P5TestsOutput.println("TESTS INCOMPLETE");
+          }
 
         if (showDigests) println(outputDigestLines[outputDigestLinesUsedSoFar]);
         outputDigestLinesUsedSoFar++;
@@ -205,7 +212,7 @@ void setup() {
   }
   outputDigestLines[0] = "total digest: " + new MD5(digestOfTheDigest).asHex();
   if (showDigests) println(outputDigestLines[0]);
-  saveStrings("./data/javascript4P5TestDigest.txt", outputDigestLines);
+  saveStrings("./data/javascript4P5TestsDigest.txt", outputDigestLines);
 
   javascript4P5TestsOutput.flush(); // Write the remaining data
   javascript4P5TestsOutput.close(); // Finish the file

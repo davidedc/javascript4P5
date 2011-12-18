@@ -58,6 +58,49 @@ var TITLE   = "Array Objects";
 writeHeaderToLog( SECTION + " "+ TITLE);
 
 new TestCase(SECTION,
+             "var myarr = [100]; \n myarr[0];",
+             9,
+             es("var myarr = []; \n myarr[0];")
+  );
+
+
+new TestCase(SECTION,
+             "var myarr = [100]; myarr(0);",
+             9,
+             eval("var myarr = []; myarr(0);")
+  );
+
+new TestCase(SECTION,
+             "var myarr = [100]; myarr[0]=9; myarr[0];",
+             9,
+             eval("var myarr = []; myarr[0]=9; myarr[0];")
+  );
+
+new TestCase(SECTION,
+             "var myarr = []; myarr[0]=9; myarr[0];",
+             9,
+             eval("var myarr = []; myarr[0]=9; myarr[0];")
+  );
+
+new TestCase(SECTION,
+             "var myarr = []; myarr[0]='hi'; myarr[0]",
+             "hi",
+             eval("var myarr = []; myarr[0]='hi'; myarr[0]")
+  );
+
+new TestCase(SECTION,
+             "var myarr = new Array(); myarr[0]='hi'; myarr[0]",
+             "hi",
+             eval("var myarr = new Array(); myarr[0]='hi'; myarr[0]")
+  );
+
+new TestCase(SECTION,
+             "var myarr = new Array(); myarr[1+1]='hi'; myarr[1+1]",
+             "hi",
+             eval("var myarr = new Array(); myarr[1+1]='hi'; myarr[1+1]")
+  );
+
+new TestCase(SECTION,
              "var myarr = new Array(); myarr[Math.pow(2,32)-2]='hi'; myarr[Math.pow(2,32)-2]",
              "hi",
              eval("var myarr = new Array(); myarr[Math.pow(2,32)-2]='hi'; myarr[Math.pow(2,32)-2]")
