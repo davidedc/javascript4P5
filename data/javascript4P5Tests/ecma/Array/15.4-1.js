@@ -94,6 +94,12 @@ new TestCase(SECTION,
   );
 
 new TestCase(SECTION,
+             "var myarr = new Array(); myarr[Math.pow(2,2)-1]='hi'; myarr.length",
+             Math.pow(2,2),
+             eval("var myarr = new Array(); myarr[Math.pow(2,2)-1]='hi'; myarr.length")
+  );
+
+new TestCase(SECTION,
              "var myarr = new Array(); myarr[Math.pow(2,32)-2]='hi'; myarr.length",
              (Math.pow(2,32)-1),
              eval("var myarr = new Array(); myarr[Math.pow(2,32)-2]='hi'; myarr.length")

@@ -1384,13 +1384,15 @@ mainloop:
             break;
         case 212: // Math.abs(1)
             if (arg0 != null && (arg0 = arg0.toNum()) != Rv._NaN) {
-                thiz.num = Math.abs(arg0.num);
+                ret = new Rv(Math.abs(arg0.num));
             }
             break;
         case 213: // Math.pow(2)
             if (argLen > 0) {
+              System.out.println("Math.pow with args: " + arg0.num + " " + arg1.num);
               if (arg0 != null && (arg0 = arg0.toNum()) != Rv._NaN && arg1 != null && (arg1 = arg1.toNum()) != Rv._NaN) {
-                  thiz.num = (int)Math.pow(arg0.num, arg1.num);
+                  ret = new Rv((int)Math.pow(arg0.num, arg1.num));
+                  System.out.println("Calculated: " + thiz.num);
               }
             }
             break;
