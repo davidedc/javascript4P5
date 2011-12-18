@@ -99,6 +99,18 @@ void setup() {
         // ok here we build the final file to be ran
         // it comprises of the testuite shell.js and jsref.js files, plus the testcategory shell.js file, plus the test file
 
+
+        // This is in case you only want to run a specific test
+        /*
+        if (
+          (!testName.equals("eval4.js") || !testSuiteName.equals("javascript4meTests") || !testCategoryName.equals("all"))
+        )
+          {
+            continue;
+          }
+          */
+          
+
         /*
         if (
          (testName.equals("regress-159334.js") && testSuiteName.equals("js1_5") && testCategoryName.equals("Regress"))
@@ -177,7 +189,8 @@ void setup() {
           ri.astNode(func, '{', 0, ri.endpos);
           Rv rv = new Rv(false, func, 0);
           Rv callObj = rv.co = ri.initGlobalObject();
-          ri.call(false, rv, callObj, null, null, 0, 0);
+          System.out.println("top-level node: " + func);
+          ri.call(false, false, rv, callObj, null, null, 0, 0);
           int time = (int) (System.currentTimeMillis() - start);
 
           //println(">> Execution completed in " + time + " ms <<\n");

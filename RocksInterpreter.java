@@ -9,9 +9,9 @@ import java.util.*;
 
 public class RocksInterpreter {
     
-    public boolean DEBUG = false;
+    public boolean DEBUG = true;
     /** whether to evaluate in-string expressions in language level */
-    public boolean evalString = false;
+    public boolean evalString = true;
     
     public String src;
     // array of tokens. a token = (type, { [pos, len], value} )
@@ -734,7 +734,7 @@ mainloop:
                     funCo.prev = funObj == Rv._Function ? callObj : funObj.co.prev;
                     Rv thiz = isInit ? new Rv(Rv.OBJECT, funObj) : funRef.co;
                     Rv cobak = funObj.co;
-                    Rv ret = call(isInit, funObj, funObj.co = funCo, thiz, opnd, idx + 1, num);
+                    Rv ret = call(false, isInit, funObj, funObj.co = funCo, thiz, opnd, idx + 1, num);
                     funObj.co = cobak;
                     opnd.oSize = idx + 1;
                     opnd.oArray[opnd.oSize - 1] = isInit && ret == Rv._undefined ? thiz : ret;
@@ -781,7 +781,7 @@ mainloop:
      *     - ...
      * @return
      */
-    public final Rv call(boolean isInit, Rv function, Rv funCo, Rv thiz, Pack argSrc, int start, int num) {
+    public final Rv call(boolean isAnEvalCall, boolean isInit, Rv function, Rv funCo, Rv thiz, Pack argSrc, int start, int num) {
         if (function.type < Rv.FUNCTION) {
             return Rv.error("invalid function");
         }
@@ -895,7 +895,7 @@ mainloop:
                 return eval(funCo, cc[0]).evalVal(funCo);
             case RC.TOK_TRY:
                 Rv tmpfun = new Rv(false, cc[0], 0); // try node
-                Rv tmpret = call(false, tmpfun, funCo, null, null, 0, 0);
+                Rv tmpret = call(false, false, tmpfun, funCo, null, null, 0, 0);
                 if (tmpret.type == Rv.ERROR) {
                     Node catnode = (Node) cc[1];
                     if (catnode.children != null) { // valid catch
@@ -903,14 +903,14 @@ mainloop:
                         Object argName = ((Object[]) argnode.properties.getObject(argnode.display))[1];
                         funCo.putl((String) argName, tmpret);
                         tmpfun = new Rv(false, catnode, 0);
-                        tmpret = call(false, tmpfun, funCo, null, null, 0, 0);
+                        tmpret = call(false, false, tmpfun, funCo, null, null, 0, 0);
                     }
                 }
                 Node finode = (Node) cc[2];
                 Rv tmpret2 = Rv._undefined;
                 if (finode.children != null) { // valid finally
                     tmpfun = new Rv(false, finode, 0);
-                    tmpret2 = call(false, tmpfun, funCo, null, null, 0, 0);
+                    tmpret2 = call(false, false, tmpfun, funCo, null, null, 0, 0);
                 }
                 boolean ret2;
                 if ((ret2 = tmpret2 != Rv._undefined) || tmpret != Rv._undefined ) {
@@ -1000,7 +1000,12 @@ mainloop:
             }
     
         }
-        return Rv._undefined;
+        if (isAnEvalCall) {
+          return evr != null ? evr : Rv._undefined;
+        }
+        else {
+          return Rv._undefined;
+        }
     }
 
     /**
@@ -1139,7 +1144,7 @@ mainloop:
                 
                 for (int ii = argStart, nn = argStart + argNum; ii < nn; argSrc.add(argsArr.get(Integer.toString(ii++))));
                 Rv cobak = thiz.co;
-                ret = call(false, thiz, thiz.co = funCo, arg0, argSrc, 0, argNum);
+                ret = call(false, false, thiz, thiz.co = funCo, arg0, argSrc, 0, argNum);
                 thiz.co = cobak;
             }
             break;
@@ -1313,7 +1318,7 @@ mainloop:
                             Rv funCo = new Rv(Rv.OBJECT, Rv._Object);
                             funCo.prev = comp.co.prev;
                             Rv cobak = comp.co;
-                            grtr = call(false, comp, comp.co = funCo, thiz, argSrc, 0, 2).toNum().num > 0;
+                            grtr = call(false, false, comp, comp.co = funCo, thiz, argSrc, 0, 2).toNum().num > 0;
                             comp.co = cobak;
                         }
                     }
@@ -1406,7 +1411,8 @@ mainloop:
                 Node node = astNode(null, RC.TOK_FUNCTION, 0, 0);
                 astNode(node, RC.TOK_LBR, 0, this.endpos); // '{' = block
                 Rv func = new Rv(false, node, 0);
-                ret = call(false, func, thiz, null, null, 0, 0);
+                System.out.println("\nNode printout for eval(1):\n"+ node);
+                ret = call(true, false, func, thiz, null, null, 0, 0);
             }
             break;
         case 207: // es(1)

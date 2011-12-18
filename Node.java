@@ -23,8 +23,6 @@ public class Node {
      */
     public Pack properties; 
     
-    protected Pack[] drawinfo;
-    
     // As script AST node: function name
     public String id;
     
@@ -71,7 +69,6 @@ public class Node {
     /**
      * for debug only
      */
-     /*
     public final String toString() {
         StringBuffer buf = new StringBuffer();
         Pack prop = this.properties, cc = this.children;
@@ -97,38 +94,14 @@ public class Node {
                         .append(RC.tokensText(prop, pos + len - 5, 5));
             }
             buf.append(" }");
-        return buf.toString();
-    }
-    */
-    
-    /**
-     * for debug only
-     * @param s
-     * @return
-     */
-    static final String chop(String s) {
-        StringBuffer buf = new StringBuffer();
-        char[] cc = s.toCharArray();
-        for (int i = 0, n = cc.length > 40 ? 40 : cc.length; i < n; i++) {
-            char c = cc[i];
-            switch (c) {
-            case '\r':
-                buf.append("\\r");
-                break;
-            case '\n':
-                buf.append("\\n");
-                break;
-            case '\t':
-                buf.append("\\t");
-                break;
-            default:
-                buf.append(c);
+            
+            int scanningChildren = 0;
+            while (  getChild(scanningChildren) != null) {
+              buf.append("\n"+getChild(scanningChildren).toString());
+              scanningChildren++;
             }
-        }
-        if (cc.length > 40) {
-            buf.append("...");
-        }
+
         return buf.toString();
     }
-    
+        
 }
