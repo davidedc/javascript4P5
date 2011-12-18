@@ -4,6 +4,8 @@ javascript4me is made by Wang Lei ( rockswang@gmail.com ) and is released under 
 You can find javascript4me at http://code.google.com/p/javascript4me/
 */
 
+// RC Stands for "Return Constants"
+
 class RC {
     
     // All tokens

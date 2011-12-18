@@ -11,7 +11,7 @@ public class RocksInterpreter {
     
     public boolean DEBUG = false;
     /** whether to evaluate in-string expressions in language level */
-    public boolean evalString = true;
+    public boolean evalString = false;
     
     public String src;
     // array of tokens. a token = (type, { [pos, len], value} )

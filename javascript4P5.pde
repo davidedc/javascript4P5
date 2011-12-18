@@ -5,7 +5,7 @@ javascript4P5 is a port of javascript4me for Processing, by Davide Della Casa
  */
 
 List list = null;
-Pack dispStack = new Pack(-1, 3);
+//Pack dispStack = new Pack(-1, 3);
 RocksInterpreter ri;
 boolean stopSkippingTests = true;
 String exceptionDuringExecution;
