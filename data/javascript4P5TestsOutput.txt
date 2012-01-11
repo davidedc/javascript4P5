@@ -1,0 +1,15 @@
+////// New test:
+otherJavascript4P5Tests - all - processingSimplified.js md5OfOutput: 009827b1336ca2fa0adc8cc532b71e22 md5OfException: d41d8cd98f00b204e9800998ecf8427e
+////// Exception:
+
+////// Output:
+running from javascript interpreter javascript4p5
+int a=1;
+#regextofix 1
+code: int a=1;
+items[0]: int a=1;
+#regextofix 2
+#regextofix 6
+object
+
+TESTS INCOMPLETE

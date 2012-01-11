@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!-- skeleton modified from http://www.ccs.neu.edu/home/dimvar/jstypes.html -->
+<!-- by Davide Della Casa, 7th Jan 2012 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Processing to Javascript</title>
+    <script type="text/javascript" src="../data/javascript4P5Tests/otherJavascript4P5Tests/all/processingSimplified.js"></script>
+    <script type="text/javascript" src="./examplePrograms.js"></script>
+    <script type="text/javascript" src="./smallHelper.js"></script>
+    <script type="text/javascript" src="./md5.js"></script>
+    <style type="text/css">
+      #body {
+      position: absolute;
+      top: 2%;
+      left: 2%
+      }
+      #col1 {
+      position: absolute;
+      width: 160px;
+      top: 120px;
+      font-family: sans-serif;
+      }
+      #col2 {
+      position: absolute;
+      left: 200px;
+      width: 613px;
+      }
+      #title {
+      font: normal xx-large sans-serif;
+      position: relative;
+      width: 100%;
+      text-align: center;
+      }
+      #description {
+      font: small sans-serif;
+      position: relative;
+      text-align: left;
+      }
+      #processingCode, #translatedSketch, #hashCodes, #overallHashCode {
+      position: relative;
+      width: 613px;
+      }
+      #button {
+      position: relative;
+      text-align:center;
+      }
+    </style>
+  </head>
+  <body id="body">
+
+    <div id="col1">
+      Examples:
+      <p>
+      </p>
+      <div onclick="testAll();">test all!</div>
+      <p>
+      </p>
+      <div onclick="runExample(example01);">example01</div>
+      <div onclick="runExample(example02);">example02</div>
+      <div onclick="runExample(example03);">example03</div>
+      <div onclick="runExample(example04);">example04</div>
+    </div>
+
+    <div id="col2">
+
+      <div id="title"> 
+        Processing to Javascript
+      </div>
+      <p>
+      </p><div id="description">
+        Put some processing here and then push the button.
+      </div>
+      <p>
+      </p><div>
+        <textarea id="processingCode" rows="25" spellcheck="false"></textarea>
+      </div>
+      <p>
+      </p><div id="button">
+        <button onclick="translateFromFormIntoForm();">
+          Type some Processing above and click to see the translated code
+        </button>
+      </div>
+      <p>
+      </p><div>
+        <textarea id="translatedSketch" rows="25" spellcheck="false"></textarea>
+      </div>
+      <p>
+      </p><div>
+        <textarea id="processingJSDebug" rows="25" spellcheck="false"></textarea>
+      </div>
+      <p>
+      </p><div id="button">
+        <button onclick="clearHashCodes();">
+          Clear hash codes
+        </button>
+      </div>
+      <p>
+      </p><div>
+        <textarea id="hashCodes" rows="25" spellcheck="false"></textarea>
+      </div>
+      <p>
+      </p><div>
+        <textarea id="overallHashCode" rows="25" spellcheck="false"></textarea>
+      </div>
+
+    </div>
+
+  
+
+</body></html>

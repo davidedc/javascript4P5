@@ -101,14 +101,14 @@ void setup() {
 
 
         // This is in case you only want to run a specific test
-        /*
+        
         if (
-          (!testName.equals("eval4.js") || !testSuiteName.equals("javascript4meTests") || !testCategoryName.equals("all"))
+          (!testName.equals("processingSimplified.js") || !testSuiteName.equals("otherJavascript4P5Tests") || !testCategoryName.equals("all"))
         )
           {
             continue;
           }
-          */
+          
           
 
         if (
@@ -177,6 +177,11 @@ void setup() {
         //String finalTest = "// ### testSuiteShellJS\n" + testSuiteShellJS + "\n"+ "// ### testSuiteJsrefJS\n" + testSuiteJsrefJS + "\n"+ "// ### testCategoryShellJS\n" + testCategoryShellJS + "\n"+ "// ### testJS\n" + testJS + "\n";
         String finalTest = "// ### testSuiteJsrefJS\n" + testSuiteJsrefJS + "\n"+ "// ### testCategoryShellJS\n" + testCategoryShellJS + "\n"+ "// ### testJS\n" + testJS + "\n";
 
+        finalTest = finalTest.replace("var runningWithJavascript4PE = false;","var runningWithJavascript4PE = true;");
+        finalTest = finalTest.replace("/*comment-in for javascript4P5*/","/*");
+        finalTest = finalTest.replace("/*comment-out for javascript4P5*/","*/");
+         
+         
         //println( finalTest);
         //if(1==1) return;
 

@@ -1434,6 +1434,20 @@ mainloop:
                 out.append("\n");
             }
             break;
+        case 214: // String.javaSplit(1)
+            System.out.println("case 214 javaSplit");
+            if (arg0 != null) {
+                thiz = thiz.toStr();
+                String delim = arg0.toStr().str;
+ 
+ 
+                Pack p = javaSplit(thiz.str, delim);
+                ret = new Rv(Rv.ARRAY, Rv._Array);
+                for (int i = 0, n = p.oSize; i < n; i++) {
+                    ret.putl(i, new Rv((String) p.oArray[i])); 
+                }
+            }
+            break;
         }
 //        StringBuffer buf = new StringBuffer();
 //        buf.append("this=" + thiz.toStr());
@@ -1478,6 +1492,7 @@ mainloop:
                     .putl("lastIndexOf", nat("String.lastIndexOf"))
                     .putl("substring", nat("String.substring"))
                     .putl("split", nat("String.split"))
+                    .putl("javaSplit", nat("String.javaSplit"))
             ;
             Rv._Array.nativeCtor("Array", go)
                     .ctorOrProt
@@ -1928,6 +1943,7 @@ mainloop:
         "211,Math.max,2," +
         "212,Math.abs,1," +
         "213,Math.pow,2," +
+        "214,String.javaSplit,1," +
         "";
     
     static final Rhash htNativeIndex;
@@ -2011,6 +2027,57 @@ mainloop:
         return ret;
     }
     
+    // added by Davide Della Casa
+    // this is a bad hack to introduce some kind of support for regular
+    // expressions. We are introducing a javaSplit(1) function that does
+    // what the java implementaiton does, and in fact it's
+    // implemented with java regex
+    static final Pack javaSplit(String src, String delim) {
+      
+      
+      // this is in case one wants to play with java regular expressions quickly
+      java.util.regex.Pattern p0 = java.util.regex.Pattern.compile("([\\s])");
+        // Split input with the pattern
+        String[] result2 = 
+                 p0.split("one,two, three   four ,  five");
+        for (int i=0; i<result2.length; i++)
+            System.out.println(result2[i]);
+      
+            
+            
+        System.out.println("running a javaSplit()");
+        System.out.println("string: " + src);
+        System.out.println("original pattern: " + delim);
+
+        // this is because regexes otherwise don'r print out well
+        String delimForPrint = delim.replace("@","\\\\");
+        if (delimForPrint.charAt(0) == '/') delimForPrint = delimForPrint.substring(1);
+        if (delimForPrint.charAt(delimForPrint.length()-1) == '/') delimForPrint = delimForPrint.substring(0,delimForPrint.length()-1);
+        System.out.println("modified pattern: " + delimForPrint);
+
+        delim = delim.replace("@","\\");
+        if (delim.charAt(0) == '/') delim = delim.substring(1);
+        if (delim.charAt(delim.length()-1) == '/') delim = delim.substring(0,delim.length()-1);
+        Pack ret = new Pack(-1, 20);
+        if (delim.length() == 0) {
+            char[] cc = src.toCharArray();
+            for (int i = 0, n = cc.length; i < n; ret.add("" + cc[i++]));
+            return ret;
+        }
+        
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile(delim);
+        // Split input with the pattern
+        String[] result = 
+        p.split(src);
+        for (int i=0; i<result.length; i++){
+            System.out.println("split from javaSplit: " + result[i]);
+            ret.add(result[i]);
+        }
+
+        return ret;
+    }
+
+
     final static void addToken(Pack tokens, int type, int pos, int len, Object val) {
         Object[] oo = new Object[val != null ? 2 : 1];
         oo[0] = new int[] { pos, len };
