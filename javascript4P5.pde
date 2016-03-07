@@ -4,6 +4,10 @@ javascript4P5 is a port of javascript4me for Processing, by Davide Della Casa
  You can find javascript4me at http://code.google.com/p/javascript4me/
  */
 
+// Some default imports have gone in Processing 3.0, so have to add these two here
+import java.util.*;
+import java.io.*;
+
 List list = null;
 //Pack dispStack = new Pack(-1, 3);
 RocksInterpreter ri;
@@ -272,4 +276,3 @@ public static final String readUTF(byte[] data) {
   }
   return ret;
 }
-
